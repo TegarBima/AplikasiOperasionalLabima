@@ -54,7 +54,7 @@ class CabangController extends Controller
         ], 201);
     }
 
-    public function show($id)
+    public function show(string $id)
     {
         $cabang = Cabang::find($id);
 
@@ -65,7 +65,7 @@ class CabangController extends Controller
         return response()->json($cabang);
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request,string $id)
     {
         $cabang = Cabang::find($id);
 
@@ -101,7 +101,7 @@ class CabangController extends Controller
         ]);
     }
 
-    public function destroy($id)
+    public function destroy(string $id)
     {
         DB::beginTransaction();
 

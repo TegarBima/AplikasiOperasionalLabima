@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('wilayah', function (Blueprint $table) {
-            $table->id();
+        Schema::create('wilayahs', function (Blueprint $table) {
+            $table->id("wilayah_id");
             $table->string('kode_wilayah', 20)->unique();
             $table->string('wilayah', 100);
             $table->enum('type_wilayah', [

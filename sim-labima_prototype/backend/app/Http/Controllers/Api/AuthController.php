@@ -25,13 +25,14 @@ class AuthController extends Controller
 
         $credentials = $validation->validated();
 
-        $user = User::where('nama_user', $credentials['nama_user'])->first();
+        $user = User::where('name_user', $credentials['name_user'])->first();
 
-        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+        if (!$user || !Hash::check($credentials['password'], $user->password)) {
             return response()->json([
                 'message' => 'Invalid credentials',
             ], 401);
         }
+
 
         $token = $user->createToken('general', ['*'])->plainTextToken;
 

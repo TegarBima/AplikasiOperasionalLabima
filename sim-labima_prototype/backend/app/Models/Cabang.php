@@ -21,4 +21,9 @@ class Cabang extends Model
         'telp_PIC',
     ];
 
+    public function register()
+    {
+        return $this->hasMany(MasterRegistrasi::class, "cabang_id", "cabang_id");
+    }
+
 }

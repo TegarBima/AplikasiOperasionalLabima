@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,10 +10,10 @@ class Wilayah extends Model
     use HasFactory;
     use SoftDeletes;
 
-    protected $table = 'wilayah';
+    protected $table      = 'wilayah';
     protected $primaryKey = 'id';
-    public $incrementing = true;
-    protected $keyType = 'int';
+    public $incrementing  = true;
+    protected $keyType    = 'int';
 
     protected $fillable = [
         'kode_wilayah',
@@ -22,5 +21,20 @@ class Wilayah extends Model
         'type_wilayah',
         'lingkup',
     ];
+
+    public function register()
+    {
+        return $this->hasMany(MasterRegistrasi::class, "kode_wilayah", "kode_wilayah");
+    }
+
+    public function odc()
+    {
+        return $this->hasMany(Odc::class, "kode_wilayah", "kode_wilayah");
+    }
+
+    public function odp()
+    {
+        return $this->hasMany(Odp::class, "kode_wilayah", "kode_wilayah");
+    }
 
 }

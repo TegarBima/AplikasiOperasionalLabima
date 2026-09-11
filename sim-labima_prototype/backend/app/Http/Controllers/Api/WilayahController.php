@@ -65,7 +65,6 @@ class WilayahController extends Controller
             'message' => 'Sukses',
             'data'    => $wilayah,
         ], 200);
-
     }
 
     /**
