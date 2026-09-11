@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\MasterRegistrasi;
 use App\Models\Odc;
 use App\Models\Odp;
 use Illuminate\Http\Request;
@@ -61,7 +62,6 @@ class OdpController extends Controller
             'jumlah_port'  => 'required|integer|min:0',
             'sisa_port'    => 'required|integer|min:0',
         ]);
-
 
         if ($validated['sisa_port'] > $validated['jumlah_port']) {
             return response()->json([
@@ -144,7 +144,7 @@ class OdpController extends Controller
                 $query
                     ->whereNull('deleted_at')
                     ->where('status_survey', 'accept')
-                    ->with('mitra');                
+                    ->with('mitra');
             },
         ])->find($id);
 
@@ -160,31 +160,31 @@ class OdpController extends Controller
      */
     public function update(Request $request, string $id)
     {
-       $odp = Odp::find($id);
+        $odp = Odp::find($id);
 
-        if (!$odp) {
+        if (! $odp) {
             return response()->json(['message' => 'Odp tidak ditemukan'], 404);
         }
         $old_odc_id = $odp->odc_id;
         $old_odp_id = $odp->odp_id;
 
         $validated = $request->validate([
-            'odp_id' => 'nullable|string|max:255',
-            'odc_id' => 'required|exists:odcs,odc_id',
-            'lokasi_odp' => 'required|string|max:255',
+            'odp_id'       => 'nullable|string|max:255',
+            'odc_id'       => 'required|exists:odcs,odc_id',
+            'lokasi_odp'   => 'required|string|max:255',
             'kode_wilayah' => 'required|exists:wilayah,kode_wilayah',
-            'jumlah_port' => 'required|integer|min:0',
-            'sisa_port' => 'required|integer|min:0',
+            'jumlah_port'  => 'required|integer|min:0',
+            'sisa_port'    => 'required|integer|min:0',
         ]);
 
         if (strtolower($odp->odp_id) !== strtolower($validated['odp_id'])) {
             $validated = $request->validate([
-                'odp_id' => 'nullable|string|max:255|unique:odps,odp_id',
-                'odc_id' => 'required|exists:odcs,odc_id',
-                'lokasi_odp' => 'required|string|max:255',
+                'odp_id'       => 'nullable|string|max:255|unique:odps,odp_id',
+                'odc_id'       => 'required|exists:odcs,odc_id',
+                'lokasi_odp'   => 'required|string|max:255',
                 'kode_wilayah' => 'required|exists:wilayah,kode_wilayah',
-                'jumlah_port' => 'required|integer|min:0',
-                'sisa_port' => 'required|integer|min:0',
+                'jumlah_port'  => 'required|integer|min:0',
+                'sisa_port'    => 'required|integer|min:0',
             ]);
             $checkOdpID = Odp::query()->whereRaw('LOWER(odp_id) = ?', [strtolower($validated['odp_id'])])
                 ->first();
@@ -206,7 +206,7 @@ class OdpController extends Controller
 
         if ($old_odc_id !== $new_odc_id) {
             $new_odc = Odc::where('odc_id', $new_odc_id)->first();
-            if (!$new_odc || $new_odc->sisa_port <= 0) {
+            if (! $new_odc || $new_odc->sisa_port <= 0) {
                 return response()->json([
                     'message' => 'Gagal memperbarui ODP. ODC baru (' . $new_odc_id . ') tidak memiliki sisa port yang tersedia.',
                 ], 409);
@@ -237,7 +237,7 @@ class OdpController extends Controller
 
             return response()->json([
                 'message' => 'Odp berhasil diupdate dan port ODC terkait telah disesuaikan.',
-                'data' => $odp->refresh()
+                'data'    => $odp->refresh(),
             ]);
 
         } catch (\Illuminate\Database\QueryException $e) {
@@ -245,7 +245,7 @@ class OdpController extends Controller
                 'message' => $e->getCode() === '23000'
                     ? 'Kode lama: ' . $old_odp_id . ' masih digunakan oleh data pelanggan'
                     : 'Terjadi kesalahan saat memperbarui data.',
-                'error' => $e->getMessage(),
+                'error'   => $e->getMessage(),
             ], 500);
         } catch (\Exception $e) {
             return response()->json([
@@ -259,17 +259,17 @@ class OdpController extends Controller
      */
     public function destroy(Request $request, string $id)
     {
-         $odp = Odp::find($id);
+        $odp = Odp::find($id);
 
-        if (!$odp) {
+        if (! $odp) {
             return response()->json(['message' => 'Odp tidak ditemukan'], 404);
         }
 
         $odc_id_to_increment = $odp->odc_id;
-        $checkPsb = MPsb::query()->where('odp_id', $odp->odp_id)->exists();
-        $delete = false;
+        $checkPsb            = MasterRegistrasi::query()->where('odp_id', $odp->odp_id)->exists();
+        $delete              = false;
 
-        if ($checkPsb && !$request->has('confirm')) {
+        if ($checkPsb && ! $request->has('confirm')) {
             return response()->json(['message' => 'ODP memiliki Data Pelanggan'], 409);
         } else if ($checkPsb && $request->has('confirm')) {
             $confirm = $request->input('confirm');
@@ -299,7 +299,7 @@ class OdpController extends Controller
             } catch (\Exception $e) {
                 return response()->json([
                     'message' => 'Gagal menghapus ODP dan mengembalikan port ODC.',
-                    'error' => $e->getMessage(),
+                    'error'   => $e->getMessage(),
                 ], 500);
             }
         }
@@ -314,22 +314,22 @@ class OdpController extends Controller
         ]);
 
         $psbIds = array_filter(explode(',', $request->psb_id));
-        
+
         return DB::transaction(function () use ($odp, $psbIds) {
             // Update PSB records: set odp_id and nullify antena_id
-            MPsb::whereIn('psb_id', $psbIds)->update([
-                'odp_id' => $odp->odp_id,
-                'antena_id' => null
+            MasterRegistrasi::whereIn('psb_id', $psbIds)->update([
+                'odp_id'    => $odp->odp_id,
+                'antena_id' => null,
             ]);
 
             return response()->json([
                 'message' => 'Berhasil menambahkan ' . count($psbIds) . ' pelanggan ke ODP ' . $odp->odp_id,
-                'data' => $odp->fresh()
+                'data'    => $odp->fresh(),
             ]);
         });
     }
 
-     public function deletePsb(Request $request, string $id)
+    public function deletePsb(Request $request, string $id)
     {
         $odp = Odp::findOrFail($id);
 
@@ -340,13 +340,13 @@ class OdpController extends Controller
         $psbIds = array_filter(explode(',', $request->psb_id));
 
         return DB::transaction(function () use ($odp, $psbIds) {
-            MPsb::whereIn('psb_id', $psbIds)
+            MasterRegistrasi::whereIn('psb_id', $psbIds)
                 ->where('odp_id', $odp->odp_id)
                 ->update(['odp_id' => null]);
 
             return response()->json([
                 'message' => 'Berhasil menghapus ' . count($psbIds) . ' pelanggan dari ODP ' . $odp->odp_id,
-                'data' => $odp->fresh()
+                'data'    => $odp->fresh(),
             ]);
         });
     }
