@@ -115,4 +115,14 @@ class MasterRegistrasi extends Model
     {
         return $this->belongsTo(Produk::class, 'produk_id', 'produk_id');
     }
+
+    public function antena()
+    {
+        return $this->belongsTo(Antena::class, 'antena_id', 'antena_id');
+    }
+
+    public function metro()
+    {
+        return $this->belongsTo(Metro::class, 'metro_id', 'metro_id');
+    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AntenaController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CabangController;
 use App\Http\Controllers\Api\MasterMitraController;
@@ -48,4 +49,12 @@ Route::prefix("odp")->group(function () {
     Route::get("/{id}", [OdpController::class, "show"]);
     Route::put("/{id}", [OdpController::class, "update"]);
     Route::delete("/{id}", [OdpController::class, "destroy"]);
+});
+
+Route::get("/antena", [AntenaController::class,"index"]);
+Route::prefix("antena")->group(function () {
+    Route::post("/", [AntenaController::class, "store"]);
+    Route::get("/{id}", [AntenaController::class, "show"]);
+    Route::put("/{id}", [AntenaController::class, "update"]);
+    Route::delete("/{id}", [AntenaController::class, "destroy"]);
 });

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Antena;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AntenaController extends Controller
 {
@@ -83,7 +84,26 @@ class AntenaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $antena = Antena::findOrFail($id);
+
+        $validated = $request->validate([
+            'nama'         => 'required|string|max:255',
+            'mac'          => 'nullable|string|max:255',
+            'ssid'         => 'nullable|string|max:255',
+            'password'     => 'nullable|string|max:255',
+            'frequency'    => 'nullable|string|max:255',
+            'channel'      => 'nullable|string|max:255',
+            'alamat'       => 'required|string',
+            'titik_lokasi' => 'required|string|max:255',
+            'keterangan'   => 'nullable|string',
+        ]);
+
+        $antena->update($validated);
+
+        return response()->json([
+            'message' => 'Data antena berhasil diupdate',
+            'data'    => $antena
+        ]);
     }
 
     /**
@@ -91,6 +111,14 @@ class AntenaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $antena = Antena::findOrFail($id);
+
+        DB::transaction(function () use ($antena) {
+            $antena->delete();
+        });
+
+        return response()->json([
+            'message' => 'Data antena berhasil dihapus'
+        ]);
     }
 }
