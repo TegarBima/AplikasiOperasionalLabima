@@ -9,7 +9,7 @@ class MasterRegistrasi extends Model
 {
     use SoftDeletes;
     use HasFactory;
-    protected $table      = "MasterRegistrasi";
+    protected $table      = "master_registrasis";
     protected $primaryKey = 'registrasi_id';
     public $incrementing  = true;
     protected $keyType    = 'int';

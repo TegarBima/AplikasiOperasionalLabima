@@ -113,15 +113,15 @@ class CabangController extends Controller
                 return response()->json(['message' => 'Cabang tidak ditemukan'], 404);
             }
 
-            $checkUses = $cabang->itemPsb()->exists();
+            $checkUses = $cabang->register()->exists();
 
             if ($checkUses) {
                 DB::rollBack();
                 return response()->json(['message' => 'Cabang masih digunakan oleh data pelanggan.'], 409);
             }
 
-            if ($cabang->itemPsb()->exists()) {
-                $cabang->itemPsb()->update(['cabang_id' => null]);
+            if ($cabang->register()->exists()) {
+                $cabang->register()->update(['cabang_id' => null]);
             }
 
             $cabang->delete();
@@ -133,7 +133,11 @@ class CabangController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            return response()->json(['message' => 'Terjadi kesalahan saat menghapus Cabang.', 'data' => $e], 500);
+            return response()->json([
+                'message' => 'Terjadi kesalahan saat menghapus Cabang.', 
+                'data' => $e,
+                'error_detail' => $e->getMessage()
+                ], 500);
         }
     }
 
